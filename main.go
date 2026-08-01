@@ -42,7 +42,10 @@ func main() {
 	createTables(db)
 	service := NewService(db)
 
-	r.GET("check", service.Check)
+	r.GET("check", func(c *gin.Context) {
+		c.JSON(200, "server is running")
+	})
+
 	reminderGroup := r.Group("api/reminder")
 	reminderGroup.POST("", service.CreateReminder)
 	reminderGroup.GET("{:id}", service.FindReminderById)
