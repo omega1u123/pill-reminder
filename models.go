@@ -20,3 +20,8 @@ type ReminderResponse struct {
 	RemindDate   []ReminderDate `json:"date"`
 	Description  string         `json:"description"`
 }
+
+type UpdateReminderDateStatus struct {
+	Id          uuid.UUID `json:"reminderDateId"`
+	IsCompleted bool      `json:"isCompleted"`
+}

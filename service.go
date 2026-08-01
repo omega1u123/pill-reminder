@@ -175,4 +175,16 @@ func (s *PillService) DeleteById(c *gin.Context) {
 	c.JSON(200, "deleted")
 }
 
-//TODO добавить метод UpdateReminderStatus
+func (s *PillService) UpdateStatus(c *gin.Context) {
+	var req UpdateReminderDateStatus
+
+	err := c.Bind(req)
+	if err != nil {
+		c.JSON(500, err)
+	}
+
+	_, err = s.db.Exec("update reminderdate set isCompleted = $1 where id = $2", req.IsCompleted, req.Id)
+	if err != nil {
+		c.JSON(500, err)
+	}
+}

@@ -47,6 +47,7 @@ func main() {
 	reminderGroup.GET("{:id}", service.FindReminderById)
 	reminderGroup.GET("findByUserId", service.FindAllRemindersByUserId)
 	reminderGroup.DELETE("{:id}", service.DeleteById)
+	reminderGroup.PUT("{:reminderDateId}", service.UpdateStatus)
 
 	userGroup := r.Group("api/user")
 	userGroup.POST("register", service.RegisterUser)
