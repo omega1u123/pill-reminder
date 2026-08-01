@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: pill-reminder-db
+    environment:
+      POSTGRES_USER: ${DB_USER:-reminder_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-reminder_password}
+      POSTGRES_DB: ${DB_NAME:-medicine-reminder-db}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-reminder_user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pill-reminder-network
+
+  pill-reminder:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pill-reminder-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_HOST: ${DB_HOST:-postgres}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_USER: ${DB_USER:-reminder_user}
+      DB_PASSWORD: ${DB_PASSWORD:-reminder_password}
+      DB_NAME: ${DB_NAME:-medicine-reminder-db}
+      GIN_MODE: ${GIN_MODE:-release}
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    networks:
+      - pill-reminder-network
+    restart: unless-stopped
+
+networks:
+  pill-reminder-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
