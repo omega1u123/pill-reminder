@@ -16,6 +16,10 @@ func NewService(db *sqlx.DB) *PillService {
 	}
 }
 
+func (s *PillService) Check(c *gin.Context) {
+	c.JSON(200, "running")
+}
+
 func (s *PillService) RegisterUser(c *gin.Context) {
 	var requestBody string
 	err := c.Bind(&requestBody)
