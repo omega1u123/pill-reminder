@@ -16,7 +16,6 @@
 2. [Reminder API](#reminder-api) - Управление напоминаниями
 3. [Модели данных](#модели-данных)
 4. [Коды ошибок](#коды-ошибок)
-5. [Примеры использования](#примеры-использования)
 
 ---
 
@@ -56,42 +55,6 @@ null
   "error": "description of error"
 }
 ```
-
-**Примеры запроса**:
-
-=== "cURL"
-    ```bash
-    curl -X POST http://localhost:8080/api/user/register \
-      -H "Content-Type: application/json" \
-      -d '{"id": "550e8400-e29b-41d4-a716-446655440000"}'
-    ```
-
-=== "JavaScript"
-    ```javascript
-    fetch('http://localhost:8080/api/user/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        id: '550e8400-e29b-41d4-a716-446655440000'
-      })
-    })
-    .then(response => response.json())
-    .then(data => console.log(data));
-    ```
-
-=== "Python"
-    ```python
-    import requests
-    
-    url = 'http://localhost:8080/api/user/register'
-    payload = {
-        'id': '550e8400-e29b-41d4-a716-446655440000'
-    }
-    response = requests.post(url, json=payload)
-    print(response.status_code)
-    ```
 
 ---
 
@@ -160,65 +123,6 @@ POST /reminder
 }
 ```
 
-**Примеры запроса**:
-
-=== "cURL"
-    ```bash
-    curl -X POST http://localhost:8080/api/reminder \
-      -H "Content-Type: application/json" \
-      -d '{
-        "medicine_name": "Аспирин",
-        "dosage": "500mg",
-        "description": "Принимать после еды",
-        "date": [
-          "2026-08-02T09:00:00Z",
-          "2026-08-02T21:00:00Z"
-        ]
-      }'
-    ```
-
-=== "JavaScript"
-    ```javascript
-    const reminder = {
-      medicine_name: 'Аспирин',
-      dosage: '500mg',
-      description: 'Принимать после еды',
-      date: [
-        new Date('2026-08-02T09:00:00Z'),
-        new Date('2026-08-02T21:00:00Z')
-      ]
-    };
-    
-    fetch('http://localhost:8080/api/reminder', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(reminder)
-    })
-    .then(response => response.json())
-    .then(data => console.log(data));
-    ```
-
-=== "Python"
-    ```python
-    import requests
-    from datetime import datetime
-    
-    url = 'http://localhost:8080/api/reminder'
-    payload = {
-        'medicine_name': 'Аспирин',
-        'dosage': '500mg',
-        'description': 'Принимать после еды',
-        'date': [
-            '2026-08-02T09:00:00Z',
-            '2026-08-02T21:00:00Z'
-        ]
-    }
-    response = requests.post(url, json=payload)
-    print(response.json())
-    ```
-
 ---
 
 ### Получить напоминание по ID
@@ -263,38 +167,6 @@ GET /reminder/{id}
   "error": "Reminder not found"
 }
 ```
-
-**Примеры запроса**:
-
-=== "cURL"
-    ```bash
-    curl -X GET http://localhost:8080/api/reminder/123e4567-e89b-12d3-a456-426614174000 \
-      -H "Content-Type: application/json"
-    ```
-
-=== "JavaScript"
-    ```javascript
-    const reminderId = '123e4567-e89b-12d3-a456-426614174000';
-    
-    fetch(`http://localhost:8080/api/reminder/${reminderId}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
-    .then(response => response.json())
-    .then(data => console.log(data));
-    ```
-
-=== "Python"
-    ```python
-    import requests
-    
-    reminder_id = '123e4567-e89b-12d3-a456-426614174000'
-    url = f'http://localhost:8080/api/reminder/{reminder_id}'
-    response = requests.get(url)
-    print(response.json())
-    ```
 
 ---
 
@@ -355,39 +227,6 @@ GET /reminder/findByUserId
 }
 ```
 
-**Примеры запроса**:
-
-=== "cURL"
-    ```bash
-    curl -X GET "http://localhost:8080/api/reminder/findByUserId?userId=550e8400-e29b-41d4-a716-446655440000" \
-      -H "Content-Type: application/json"
-    ```
-
-=== "JavaScript"
-    ```javascript
-    const userId = '550e8400-e29b-41d4-a716-446655440000';
-    
-    fetch(`http://localhost:8080/api/reminder/findByUserId?userId=${userId}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
-    .then(response => response.json())
-    .then(data => console.log(data));
-    ```
-
-=== "Python"
-    ```python
-    import requests
-    
-    user_id = '550e8400-e29b-41d4-a716-446655440000'
-    url = 'http://localhost:8080/api/reminder/findByUserId'
-    params = {'userId': user_id}
-    response = requests.get(url, params=params)
-    print(response.json())
-    ```
-
 ---
 
 ### Удалить напоминание
@@ -420,37 +259,49 @@ DELETE /reminder/{id}
 }
 ```
 
-**Примеры запроса**:
+---
 
-=== "cURL"
-    ```bash
-    curl -X DELETE http://localhost:8080/api/reminder/123e4567-e89b-12d3-a456-426614174000 \
-      -H "Content-Type: application/json"
-    ```
+### Обновление статуса даты напоминания
 
-=== "JavaScript"
-    ```javascript
-    const reminderId = '123e4567-e89b-12d3-a456-426614174000';
-    
-    fetch(`http://localhost:8080/api/reminder/${reminderId}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
-    .then(response => response.json())
-    .then(data => console.log(data));
-    ```
+Обновляет статус выполнения конкретной даты напоминания.
 
-=== "Python"
-    ```python
-    import requests
-    
-    reminder_id = '123e4567-e89b-12d3-a456-426614174000'
-    url = f'http://localhost:8080/api/reminder/{reminder_id}'
-    response = requests.delete(url)
-    print(response.json())
-    ```
+**Endpoint**:
+```
+PUT /reminder/{reminderDateId}
+```
+
+**Описание**: Меняет флаг `isCompleted` для конкретной записи даты напоминания.
+
+**Path Parameters**:
+| Параметр | Тип | Описание |
+|----------|-----|---------|
+| reminderDateId | string (UUID) | ID записи даты напоминания |
+
+**Request Body**:
+```json
+{
+  "reminderDateId": "223e4567-e89b-12d3-a456-426614174001",
+  "isCompleted": true
+}
+```
+
+**Parameters**:
+| Поле | Тип | Обязательное | Описание |
+|------|-----|-------------|---------|
+| reminderDateId | string (UUID) | Да | ID записи даты напоминания |
+| isCompleted | boolean | Да | Новый статус выполнения |
+
+**Response** (200 OK):
+```json
+null
+```
+
+**Response** (500 Internal Server Error):
+```json
+{
+  "error": "description of error"
+}
+```
 
 ---
 
@@ -585,54 +436,9 @@ Response модель при возврате напоминания.
 
 ---
 
-## Примеры использования
-
-### Сценарий 1: Регистрация и создание первого напоминания
-
-```bash
-# 1. Регистрируем пользователя
-USER_ID="550e8400-e29b-41d4-a716-446655440000"
-curl -X POST http://localhost:8080/api/user/register \
-  -H "Content-Type: application/json" \
-  -d "{\"id\": \"$USER_ID\"}"
-
-# 2. Создаем напоминание для приема таблеток
-curl -X POST http://localhost:8080/api/reminder \
-  -H "Content-Type: application/json" \
-  -d '{
-    "medicine_name": "Аспирин",
-    "dosage": "500mg",
-    "description": "После еды",
-    "date": [
-      "2026-08-02T09:00:00Z",
-      "2026-08-02T21:00:00Z"
-    ]
-  }'
-
-# 3. Получаем все напоминания пользователя
-curl -X GET "http://localhost:8080/api/reminder/findByUserId?userId=$USER_ID" \
-  -H "Content-Type: application/json"
-```
-
-### Сценарий 2: Поиск и удаление напоминания
-
-```bash
-REMINDER_ID="123e4567-e89b-12d3-a456-426614174000"
-
-# 1. Получаем информацию о напоминании
-curl -X GET http://localhost:8080/api/reminder/$REMINDER_ID \
-  -H "Content-Type: application/json"
-
-# 2. Если нужно, удаляем напоминание
-curl -X DELETE http://localhost:8080/api/reminder/$REMINDER_ID \
-  -H "Content-Type: application/json"
-```
-
----
 
 ## Планируемые улучшения
 
-- [ ] Метод обновления статуса напоминания (`UpdateReminderStatus`)
 - [ ] Фильтрация напоминаний по дате
 - [ ] Пагинация для больших списков
 - [ ] Авторизация и аутентификация
