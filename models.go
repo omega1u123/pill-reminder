@@ -25,3 +25,13 @@ type UpdateReminderDateStatus struct {
 	Id          uuid.UUID `json:"reminderDateId"`
 	IsCompleted bool      `json:"isCompleted"`
 }
+
+type CreatePillCourseReq struct {
+	Name   string `json:"name"`
+	UserId string `json:"userId"`
+}
+
+type AddReminderDateToCourse struct {
+	ReminderDateId uuid.UUID `json:"reminderDateId"`
+	CourseId       uuid.UUID `json:"courseId"`
+}

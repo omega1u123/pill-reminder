@@ -11,16 +11,23 @@ type User struct {
 }
 
 type ReminderEntity struct {
-	id           uuid.UUID `db:"id"`
-	medicineName string    `db:"medicine_name"`
-	dosage       string    `db:"dosage"`
-	description  string    `db:"description"`
-	userId       uuid.UUID `db:"user_id"`
+	Id           uuid.UUID `db:"id"`
+	MedicineName string    `db:"medicine_name"`
+	Dosage       string    `db:"dosage"`
+	Description  string    `db:"description"`
+	UserId       string    `db:"user_id"`
 }
 
 type ReminderDate struct {
-	id          uuid.UUID `db:"id"`
-	date        time.Time `db:"date"`
-	isCompleted bool      `db:"isCompleted"`
-	reminderId  uuid.UUID `db:"reminder_id"`
+	Id           uuid.UUID `db:"id"`
+	Date         time.Time `db:"date"`
+	IsCompleted  bool      `db:"isCompleted"`
+	ReminderId   uuid.UUID `db:"reminder_id"`
+	PillCourseId uuid.UUID `db:"pill_course_id"`
+}
+
+type PillCourse struct {
+	Id     uuid.UUID `db:"id"`
+	Name   string    `db:"name"`
+	UserId string    `db:"user_id"`
 }

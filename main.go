@@ -46,6 +46,14 @@ func main() {
 		c.JSON(200, "server is running")
 	})
 
+	r.GET("addCourseTable", func(context *gin.Context) {
+		err := createPillCourseTable(db)
+		if err != nil {
+			context.JSON(500, err)
+		}
+		context.JSON(200, nil)
+	})
+
 	reminderGroup := r.Group("api/reminder")
 	reminderGroup.POST("", service.CreateReminder)
 	reminderGroup.GET("{:id}", service.FindReminderById)
@@ -56,11 +64,34 @@ func main() {
 	userGroup := r.Group("api/user")
 	userGroup.POST("register", service.RegisterUser)
 
+	pillCourseGroup := r.Group("api/course")
+	pillCourseGroup.GET("", service.GetCoursesByUserId)
+	pillCourseGroup.POST("", service.CreatePillCourse)
+	pillCourseGroup.PUT("", service.AddReminderDateToCourse)
+
 	// Bind to all interfaces (0.0.0.0) for Docker compatibility
 	err = r.Run("0.0.0.0:8080")
 	if err != nil {
 		panic(err)
 	}
+}
+
+func createPillCourseTable(db *sqlx.DB) error {
+	query := `create table if not exists pillcourse(
+		id uuid primary key,
+		name varchar(20) not null,
+		user_id string not null
+		);
+		
+		alter table reminderDate add column pill_course_id uuid;
+		`
+
+	_, err := db.Exec(query)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func createTables(db *sqlx.DB) {
@@ -86,7 +117,7 @@ func createTables(db *sqlx.DB) {
 		    medicine_name varchar(20) not null,
 		    dosage varchar(20) not null,
 		    description varchar(20) not null,
-		    user_id uuid not null
+		    user_id string not null
 		);
 		
 		create table if not exists ReminderDate(

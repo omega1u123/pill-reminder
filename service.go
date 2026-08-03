@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -38,25 +40,25 @@ func (s *PillService) RegisterUser(c *gin.Context) {
 func (s *PillService) CreateReminder(c *gin.Context) {
 	var requestBody CreateReminderReq
 
-	err := c.Bind(requestBody)
+	err := c.Bind(&requestBody)
 	if err != nil {
 		c.JSON(500, err)
 	}
 
 	reminder := ReminderEntity{
-		id:           uuid.New(),
-		medicineName: requestBody.MedicineName,
-		dosage:       requestBody.Dosage,
-		description:  requestBody.Description,
+		Id:           uuid.New(),
+		MedicineName: requestBody.MedicineName,
+		Dosage:       requestBody.Dosage,
+		Description:  requestBody.Description,
 	}
 
 	var remindDates []ReminderDate
 	for _, v := range requestBody.RemindDate {
 		remindDate := ReminderDate{
-			id:          uuid.New(),
-			date:        v.UTC(),
-			isCompleted: false,
-			reminderId:  reminder.id,
+			Id:          uuid.New(),
+			Date:        v.UTC(),
+			IsCompleted: false,
+			ReminderId:  reminder.Id,
 		}
 		remindDates = append(remindDates, remindDate)
 	}
@@ -73,11 +75,11 @@ func (s *PillService) CreateReminder(c *gin.Context) {
 	}
 
 	reminderResponse := ReminderResponse{
-		Id:           reminder.id,
-		MedicineName: reminder.medicineName,
-		Dosage:       reminder.dosage,
+		Id:           reminder.Id,
+		MedicineName: reminder.MedicineName,
+		Dosage:       reminder.Dosage,
 		RemindDate:   remindDates,
-		Description:  reminder.description,
+		Description:  reminder.Description,
 	}
 
 	c.JSON(200, &reminderResponse)
@@ -86,7 +88,7 @@ func (s *PillService) CreateReminder(c *gin.Context) {
 func (s *PillService) FindReminderById(c *gin.Context) {
 	var id uuid.UUID
 
-	err := c.Bind(id)
+	err := c.Bind(&id)
 	if err != nil {
 		c.JSON(500, err)
 	}
@@ -104,11 +106,11 @@ func (s *PillService) FindReminderById(c *gin.Context) {
 	}
 
 	reminderResponse := ReminderResponse{
-		Id:           reminder.id,
-		MedicineName: reminder.medicineName,
-		Dosage:       reminder.dosage,
+		Id:           reminder.Id,
+		MedicineName: reminder.MedicineName,
+		Dosage:       reminder.Dosage,
 		RemindDate:   reminderDates,
-		Description:  reminder.description,
+		Description:  reminder.Description,
 	}
 
 	c.JSON(200, &reminderResponse)
@@ -129,7 +131,7 @@ func (s *PillService) FindAllRemindersByUserId(c *gin.Context) {
 
 	var remindersId []uuid.UUID
 	for _, v := range reminders {
-		remindersId = append(remindersId, v.id)
+		remindersId = append(remindersId, v.Id)
 	}
 
 	var reminderDates []ReminderDate
@@ -141,14 +143,14 @@ func (s *PillService) FindAllRemindersByUserId(c *gin.Context) {
 	var reminderResponse []ReminderResponse
 	for _, v := range reminders {
 		reminder := ReminderResponse{
-			Id:           v.id,
-			MedicineName: v.medicineName,
-			Dosage:       v.dosage,
-			Description:  v.description,
+			Id:           v.Id,
+			MedicineName: v.MedicineName,
+			Dosage:       v.Dosage,
+			Description:  v.Description,
 		}
 
 		for _, k := range reminderDates {
-			if k.reminderId == v.id {
+			if k.ReminderId == v.Id {
 				reminder.RemindDate = append(reminder.RemindDate, k)
 			}
 		}
@@ -162,7 +164,7 @@ func (s *PillService) FindAllRemindersByUserId(c *gin.Context) {
 func (s *PillService) DeleteById(c *gin.Context) {
 	var reminderId uuid.UUID
 
-	err := c.Bind(reminderId)
+	err := c.Bind(&reminderId)
 	if err != nil {
 		c.JSON(500, err)
 	}
@@ -178,7 +180,7 @@ func (s *PillService) DeleteById(c *gin.Context) {
 func (s *PillService) UpdateStatus(c *gin.Context) {
 	var req UpdateReminderDateStatus
 
-	err := c.Bind(req)
+	err := c.Bind(&req)
 	if err != nil {
 		c.JSON(500, err)
 	}
@@ -187,4 +189,77 @@ func (s *PillService) UpdateStatus(c *gin.Context) {
 	if err != nil {
 		c.JSON(500, err)
 	}
+}
+
+func (s *PillService) CreatePillCourse(c *gin.Context) {
+	var req CreatePillCourseReq
+	err := c.Bind(&req)
+	if err != nil {
+		c.JSON(500, err)
+	}
+
+	course := PillCourse{
+		Id:   uuid.New(),
+		Name: req.Name,
+	}
+
+	query := `insert into pillcourse (id, name, user_id) values ($1, $2, $3)`
+	_, err = s.db.Exec(query, course.Id, course.Name, req.UserId)
+	if err != nil {
+		c.JSON(500, err)
+	}
+
+	c.JSON(200, course)
+}
+
+func (s *PillService) AddReminderDateToCourse(c *gin.Context) {
+	var req AddReminderDateToCourse
+	err := c.Bind(&req)
+	if err != nil {
+		c.JSON(500, err)
+	}
+
+	var isExists bool
+	query := `select exists (select 1 from pillcourse where id = $1`
+	err = s.db.Get(&isExists, query, req.CourseId)
+	if !isExists {
+		c.JSON(400, fmt.Sprintf("course with id = %d not found", req.CourseId))
+	}
+	if err != nil {
+		c.JSON(500, err)
+	}
+
+	query = `select exists (select 1 from reminderdate where id = $1`
+	err = s.db.Get(&isExists, query, req.ReminderDateId)
+	if !isExists {
+		c.JSON(400, fmt.Sprintf("reminderDate with id = %d not found", req.ReminderDateId))
+	}
+	if err != nil {
+		c.JSON(500, err)
+	}
+
+	query = `insert into pillcourse(reminder_date_id) values ($1)`
+	_, err = s.db.Exec(query, req.ReminderDateId)
+	if err != nil {
+		c.JSON(500, err)
+	}
+
+	c.JSON(200, nil)
+}
+
+func (s *PillService) GetCoursesByUserId(c *gin.Context) {
+	var userId string
+	err := c.Bind(&userId)
+	if err != nil {
+		c.JSON(500, err)
+	}
+
+	var courseList []PillCourse
+	query := `select * from pillcourse where user_id = $1`
+	err = s.db.Select(&courseList, query, userId)
+	if err != nil {
+		c.JSON(500, err)
+	}
+
+	c.JSON(200, courseList)
 }
